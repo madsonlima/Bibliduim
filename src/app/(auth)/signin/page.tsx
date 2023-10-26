@@ -1,11 +1,27 @@
 'use client'
-import React from 'react';
-import { useForm } from 'react-hook-form';  // Formulários
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../../services/firebaseConfig';
+
+import Loading from '../../components/Loading/loading';
 
 export default function SignIn() {
+  const [loading, setLoading] = useState(false)
+
   const { register, handleSubmit, formState: { errors } } = useForm();
-  const onSubmit = (data: any) => console.log(data);
-  console.log(errors);
+  const onSubmit = (data: any) => {
+    setLoading(true)
+    signInWithEmailAndPassword(auth, data.email, data.password)
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        alert("Algo deu errado. Por favor, verifique o email e a senha novamente.\n\n" + errorCode + errorMessage)
+        return
+      })
+    alert("Usuário logado com sucesso!")
+  }
 
   return (
     <div className="flex items-center justify-center h-screen">
@@ -31,12 +47,14 @@ export default function SignIn() {
             type="password" placeholder="Senha" {...register("password", { required: true, minLength: 6 })}
           />
 
-          <button
-            className='text-white border-2 rounded transition hover:text-primary-600 hover:bg-white p-2 hover:cursor-pointer mt-4'
-            type="submit"
-          >
-            Entrar
-          </button>
+          {
+            loading ? <Loading /> : <button
+              className='text-white border-2 rounded transition hover:text-primary-600 hover:bg-white p-2 hover:cursor-pointer mt-4'
+              type="submit"
+            >
+              Entrar
+            </button>
+          }
         </form>
 
       </div>

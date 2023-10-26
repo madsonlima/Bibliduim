@@ -21,7 +21,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={montserrat.className}>
-        <div></div>
         <div
           className='bg-primary-1200 h-screen flex flex-col'
         >
