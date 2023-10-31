@@ -1,27 +1,44 @@
 'use client'
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+// Auth
 import { auth } from '../../../services/firebaseConfig';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+// Firestore
+import { collection, doc, addDoc, setDoc } from "firebase/firestore"; 
+import { db } from '../../../services/firebaseConfig';
 
-import Loading from '../../components/Loading/loading';
-
+import Loading from '../../../components/Loading';
 
 export default function SignUp() {
   const [loading, setLoading] = useState(false)
+  const { push } = useRouter();   // Redirecionamento
 
   const { register, handleSubmit, formState: { errors } } = useForm()
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     setLoading(true)
-    createUserWithEmailAndPassword(auth, data.email, data.password)
+    const userData = await createUserWithEmailAndPassword(auth, data.email, data.password)
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
+        setLoading(false)
         alert("Algo deu errado. Por favor, verifique o email novamente.\n\n" + errorCode + errorMessage)
         return
       })
-    alert("Usuário cadastrado com sucesso!")
+
+    if (!userData) {
+      return
+    }
+    
+    await setDoc(doc(db, "users", userData.user.uid), {
+      userName: data.user,
+      userEmail: data.email
+    });
+
+    setLoading(false)
+    push('/home')
   }
 
   return (

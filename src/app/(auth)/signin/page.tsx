@@ -1,26 +1,33 @@
 'use client'
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../../services/firebaseConfig';
 
-import Loading from '../../components/Loading/loading';
+import Loading from '../../../components/Loading';
 
 export default function SignIn() {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false) // Loading
+  const { push } = useRouter();                 // Redirecionamento
 
   const { register, handleSubmit, formState: { errors } } = useForm();
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     setLoading(true)
-    signInWithEmailAndPassword(auth, data.email, data.password)
+    const userData = await signInWithEmailAndPassword(auth, data.email, data.password)
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
+        setLoading(false)
         alert("Algo deu errado. Por favor, verifique o email e a senha novamente.\n\n" + errorCode + errorMessage)
         return
       })
-    alert("Usuário logado com sucesso!")
+
+    if (!userData) {
+      return
+    }
+    push('/home')
   }
 
   return (

@@ -1,23 +1,8 @@
-'use client'
-import { useEffect, useState } from 'react';
-
-// Watcher
-import { auth } from '../services/firebaseConfig'
-import { User, onAuthStateChanged } from 'firebase/auth';
-
 // Imagem
 import Image from "next/image"
 import imgLucina from './components/Assets/Lucina.png'
 
 export default function App() {
-  // Watcher
-  const [user, setUser] = useState<User | null>(null);
-  useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      setUser(user)
-    })
-  }, [])
-
   return (
     <div className="bg-primary-1200 w-screen h-screen flex items-center">
       <div
